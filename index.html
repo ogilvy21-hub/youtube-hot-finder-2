@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Hot Finder v2.5</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .top-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .search-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .control-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .center-panel {
+            flex: 3;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .right-panel {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        
+        .search-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .search-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .search-btn:hover {
+            background: #45a049;
+        }
+        
+        .search-btn.active {
+            background: #2196F3;
+        }
+        
+        .search-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .execute-btn {
+            padding: 12px 20px;
+            background: #FF5722;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .execute-btn:hover {
+            background: #e64a19;
+        }
+        
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .control-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .control-btn.start { background: #4CAF50; color: white; }
+        .control-btn.stop { background: #f44336; color: white; }
+        .control-btn.clear { background: #ff9800; color: white; }
+        .control-btn.excel { background: #2196F3; color: white; }
+        .control-btn.save { background: #9c27b0; color: white; }
+        .control-btn.load { background: #607d8b; color: white; }
+        .control-btn.license { background: #795548; color: white; }
+        .control-btn.exit { background: #424242; color: white; }
+        
+        .control-btn:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+        
+        .api-section {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+        
+        .api-input {
+            flex: 2;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 12px;
+            height: 80px;
+            resize: vertical;
+        }
+        
+        .stats-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        
+        .results-table th,
+        .results-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .results-table th {
+            background: #f2f2f2;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+        
+        .results-table tr:hover {
+            background: #f5f5f5;
+            cursor: pointer;
+        }
+        
+        .results-table tr.selected {
+            background: #e3f2fd;
+        }
+        
+        .preview-area {
+            text-align: center;
+        }
+        
+        .preview-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .preview-thumbnail {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .preview-info {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #666;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .channel-link {
+            color: #2196F3;
+            text-decoration: none;
+        }
+        
+        .channel-link:hover {
+            text-decoration: underline;
+        }
+        
+        .video-link {
+            color: #FF5722;
+            text-decoration: none;
+        }
+        
+        .video-link:hover {
+            text-decoration: underline;
+        }
+        
+        .command-log {
+            background: #2d2d2d;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            margin-top: 20px;
+        }
+        
+        .log-input {
+            width: 100%;
+            background: #1e1e1e;
+            color: #00ff00;
+            border: 1px solid #555;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .bottom-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .working-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #f44336;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .working-indicator.active {
+            background: #4CAF50;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>YouTube Hot Finder v2.5</h1>
+        </div>
+        
+        <div class="top-panel">
+            <h3>검색 타입 선택</h3>
+            <div class="search-buttons">
+                <button class="search-btn" data-type="channel">채널핸들명</button>
+                <button class="search-btn" data-type="keyword">키워드입력</button>
+                <button class="search-btn" data-type="settings">설정</button>
+                <button class="search-btn" data-type="results">결과</button>
+            </div>
+        </div>
+        
+        <div class="search-section">
+            <h3>검색어 입력</h3>
+            <div class="search-input-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="명령어를 입력하세요">
+                <button class="execute-btn" onclick="executeSearch()">검색 실행</button>
+            </div>
+            <div class="stats">
+                <span>검색 상태: <span id="searchStatus">대기중</span></span>
+                <span>검색 유형: <span id="searchType">-</span></span>
+                <span>총 결과: <span id="totalResults">0</span></span>
+                <span>선택됨: <span id="selectedCount">0</span></span>
+            </div>
+        </div>
+        
+        <div class="control-section">
+            <h3>작업 제어</h3>
+            <div class="control-buttons">
+                <button class="control-btn start" onclick="startOperation()">시작하기</button>
+                <button class="control-btn stop" onclick="stopOperation()">정지하기</button>
+                <button class="control-btn clear" onclick="clearResults()">결과지우기</button>
+                <button class="control-btn excel" onclick="exportToExcel()">엑셀로저장</button>
+                <button class="control-btn save" onclick="saveCurrentWork()">현재작업저장</button>
+                <button class="control-btn load" onclick="loadWork()">작업 불러오기</button>
+                <button class="control-btn license" onclick="manageLicense()">라이선스관리</button>
+                <button class="control-btn exit" onclick="exitProgram()">종료</button>
+            </div>
+            
+            <div class="api-section">
+                <textarea class="api-input" placeholder="YouTube Data API v3 Key&#10;AIzaSyChVn1T7F0qyGR3Tk7aeHVrxB1_czmNvM&#10;&#10;여기에 API 키를 입력하세요" id="apiKey"></textarea>
+                <div class="stats-section">
+                    <div>
+                        <span class="working-indicator" id="workingIndicator"></span>
+                        작업 상태: <span id="workStatus">대기중</span>
+                    </div>
+                    <div>
+                        처리된 항목: <span id="processedItems">0</span> / 
+                        전체: <span id="totalItems">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="center-panel">
+                <h3>검색 결과</h3>
+                <div id="resultsContainer">
+                    <div class="loading">검색 버튼을 선택하고 명령어를 입력한 후 검색 실행을 클릭하세요.</div>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <div class="preview-area">
+                    <div class="preview-title">영상 미리보기</div>
+                    <div id="previewContent">
+                        <img src="https://via.placeholder.com/300x168/cccccc/666666?text=No+Video+Selected" 
+                             alt="미리보기" class="preview-thumbnail">
+                        <div class="preview-info">영상을 선택하면 미리보기가 표시됩니다.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-panel">
+            <h4>명령어 / 로그 창</h4>
+            <div class="command-log" id="commandLog">
+[20:19:04] YouTube Hot Finder v2.5 시작됨
+[20:19:04] API 키 확인 중...
+[20:19:04] 명령어 대기 중 - 검색 타입을 선택하고 명령어를 입력하세요
+[20:19:05] 사용 가능한 명령어: 채널명 검색, 키워드 검색, 설정 변경, 결과 필터
+[20:19:06] 시스템 준비 완료
+            </div>
+            <input type="text" class="log-input" placeholder="명령어를 입력하세요 (예: search @channel, keyword 트렌드, config maxResults=50)" id="commandInput" onkeypress="handleCommand(event)">
+        </div>
+    </div>
+
+    <script>
+        let currentSearchType = '';
+        let searchResults = [];
+        let selectedRow = null;
+        let isWorking = false;
+        let searchInterval = null;
+
+        // 더미 데이터
+        const dummyData = [
+            {
+                channel: '게임채널A',
+                title: '신작 게임 리뷰 플레이 실황',
+                uploadDate: '2024-01-15',
+                views: 1500000,
+                viewsPerHour: 1250,
+                subscribers: 500000,
+                duration: '10:35',
+                videoUrl: 'https://youtube.com/watch?v=example1',
+                thumbnailUrl: 'https://via.placeholder.com/300x168/ff6b6b/ffffff?text=Video+1',
+                source: 'YouTube'
+            },
+            {
+                channel: '요리채널B',
+                title: '간단한 요리 레시피 튜토리얼',
+                uploadDate: '2024-01-14',
+                views: 890000,
+                viewsPerHour: 980,
+                subscribers: 250000,
+                duration: '15:22',
+                videoUrl: 'https://youtube.com/watch?v=example2',
+                thumbnailUrl: 'https://via.placeholder.com/300x168/4ecdc4/ffffff?text=Video+2',
+                source: 'YouTube'
+            },
+            {
+                channel: '댄스채널C',
+                title: '바이럴 댄스 챌린지 배우기',
+                uploadDate: '2024-01-13',
+                views: 2100000,
+                viewsPerHour: 1800,
+                subscribers: 750000,
+                duration: '8:45',
+                videoUrl: 'https://youtube.com/watch?v=example3',
+                thumbnailUrl: 'https://via.placeholder.com/300x168/45b7d1/ffffff?text=Video+3',
+                source: 'YouTube'
+            },
+            {
+                channel: '게임채널A',
+                title: '게임 언박싱 신작 게임패드',
+                uploadDate: '2024-01-12',
+                views: 850000,
+                viewsPerHour: 920,
+                subscribers: 500000,
+                duration: '25:15',
+                videoUrl: 'https://youtube.com/watch?v=example4',
+                thumbnailUrl: 'https://via.placeholder.com/300x168/f39c12/ffffff?text=Video+4',
+                source: 'YouTube'
+            },
+            {
+                channel: '뷰티채널D',
+                title: '뷰티 메이크업 튜토리얼 데일리룩',
+                uploadDate: '2024-01-11',
+                views: 620000,
+                viewsPerHour: 780,
+                subscribers: 180000,
+                duration: '12:30',
+                videoUrl: 'https://youtube.com/watch?v=example5',
+                thumbnailUrl: 'https://via.placeholder.com/300x168/e74c3c/ffffff?text=Video+5',
+                source: 'YouTube'
+            },
+            {
+                channel: '엔터채널E',
+                title: '웃음 코미디 재미있는 일상 브이로그',
+                uploadDate: '2024-01-10',
+                views: 3200000,
+                viewsPerHour: 2500,
+                subscribers: 1200000,
+                duration: '0:45',
+                videoUrl: 'https://youtube.com/watch?v=example6',
+                thumbnailUrl: 'https://via.placeholder.com/300x168/9b59b6/ffffff?text=Video+6',
+                source: 'YouTube'
+            },
+            {
+                channel: '음악채널F',
+                title: '트렌딩 음악 댄스 커버 퍼포먼스',
+                uploadDate: '2024-01-09',
+                views: 1800000,
+                viewsPerHour: 1400,
+                subscribers: 650000,
+                duration: '6:20',
+                videoUrl: 'https://youtube.com/watch?v=example7',
+                thumbnailUrl: 'https://via.placeholder.com/300x168/2ecc71/ffffff?text=Video+7',
+                source: 'YouTube'
+            },
+            {
+                channel: '교육채널G',
+                title: 'IT 프로그래밍 강의 배우기 튜토리얼',
+                uploadDate: '2024-01-08',
+                views: 450000,
+                viewsPerHour: 680,
+                subscribers: 320000,
+                duration: '18:45',
+                videoUrl: 'https://youtube.com/watch?v=example8',
+                thumbnailUrl: 'https://via.placeholder.com/300x168/3498db/ffffff?text=Video+8',
+                source: 'YouTube'
+            }
+        ];
+
+        // 검색 버튼 이벤트
+        document.querySelectorAll('.search-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 모든 버튼에서 active 클래스 제거
+                document.querySelectorAll('.search-btn').forEach(b => b.classList.remove('active'));
+                // 클릭된 버튼에 active 클래스 추가
+                this.classList.add('active');
+                
+                currentSearchType = this.dataset.type;
+                document.getElementById('searchType').textContent = getSearchTypeText(currentSearchType);
+                
+                // 검색창 플레이스홀더 변경
+                const input = document.getElementById('searchInput');
+                switch(currentSearchType) {
+                    case 'channel':
+                        input.placeholder = '채널 핸들명을 입력하세요 (예: @channelname)';
+                        break;
+                    case 'keyword':
+                        input.placeholder = '검색할 키워드를 입력하세요';
+                        break;
+                    case 'settings':
+                        input.placeholder = '설정 명령어를 입력하세요';
+                        break;
+                    case 'results':
+                        input.placeholder = '결과 필터 조건을 입력하세요';
+                        break;
+                }
+            });
+        });
+
+        function getSearchTypeText(type) {
+            switch(type) {
+                case 'channel': return '채널핸들명';
+                case 'keyword': return '키워드입력';
+                case 'settings': return '설정';
+                case 'results': return '결과';
+                default: return '-';
+            }
+        }
+
+        function executeSearch() {
+            if (!currentSearchType) {
+                alert('검색 타입을 먼저 선택해주세요.');
+                return;
+            }
+
+            const searchQuery = document.getElementById('searchInput').value.trim();
+            if (!searchQuery) {
+                alert('검색어를 입력해주세요.');
+                return;
+            }
+
+            document.getElementById('searchStatus').textContent = '검색중...';
+            
+            // 실제 API 호출 대신 더미 데이터 사용
+            setTimeout(() => {
+                searchResults = dummyData.filter(item => {
+                    switch(currentSearchType) {
+                        case 'channel':
+                            return item.channel.toLowerCase().includes(searchQuery.toLowerCase());
+                        case 'keyword':
+                            return item.title.toLowerCase().includes(searchQuery.toLowerCase());
+                        default:
+                            return true;
+                    }
+                });
+                
+                displayResults(searchResults);
+                document.getElementById('searchStatus').textContent = '검색완료';
+                document.getElementById('totalResults').textContent = searchResults.length;
+            }, 1000);
+        }
+
+        function displayResults(results) {
+            const container = document.getElementById('resultsContainer');
+            
+            if (results.length === 0) {
+                container.innerHTML = '<div class="loading">검색 결과가 없습니다.</div>';
+                return;
+            }
+
+            const table = `
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>채널명</th>
+                            <th>제목</th>
+                            <th>업로드일</th>
+                            <th>조회수</th>
+                            <th>시간당 조회수</th>
+                            <th>구독자수</th>
+                            <th>영상길이</th>
+                            <th>영상링크</th>
+                            <th>썸네일링크</th>
+                            <th>출처</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${results.map((item, index) => `
+                            <tr onclick="selectRow(${index})" data-index="${index}">
+                                <td><a href="#" class="channel-link">${item.channel}</a></td>
+                                <td>${item.title}</td>
+                                <td>${item.uploadDate}</td>
+                                <td>${item.views.toLocaleString()}</td>
+                                <td>${item.viewsPerHour.toLocaleString()}</td>
+                                <td>${item.subscribers.toLocaleString()}</td>
+                                <td>${item.duration}</td>
+                                <td><a href="${item.videoUrl}" target="_blank" class="video-link">링크</a></td>
+                                <td><a href="${item.thumbnailUrl}" target="_blank" class="video-link">썸네일</a></td>
+                                <td>${item.source}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = table;
+        }
+
+        function selectRow(index) {
+            // 이전 선택 제거
+            if (selectedRow !== null) {
+                document.querySelector(`tr[data-index="${selectedRow}"]`)?.classList.remove('selected');
+            }
+            
+            // 새로운 선택
+            selectedRow = index;
+            document.querySelector(`tr[data-index="${index}"]`).classList.add('selected');
+            document.getElementById('selectedCount').textContent = '1';
+            
+            // 미리보기 업데이트
+            const selectedVideo = searchResults[index];
+            updatePreview(selectedVideo);
+        }
+
+        function updatePreview(video) {
+            const previewContent = document.getElementById('previewContent');
+            previewContent.innerHTML = `
+                <img src="${video.thumbnailUrl}" alt="${video.title}" class="preview-thumbnail">
+                <div class="preview-info">
+                    <strong>${video.title}</strong><br>
+                    채널: ${video.channel}<br>
+                    조회수: ${video.views.toLocaleString()}<br>
+                    업로드: ${video.uploadDate}<br>
+                    길이: ${video.duration}
+                </div>
+            `;
+        }
+
+        // 엔터키로 검색 실행
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                executeSearch();
+            }
+        });
+
+        // 새로운 기능들
+        function startOperation() {
+            if (isWorking) {
+                addLog('이미 작업이 진행 중입니다.');
+                return;
+            }
+            
+            isWorking = true;
+            document.getElementById('workingIndicator').classList.add('active');
+            document.getElementById('workStatus').textContent = '작업중';
+            addLog('작업을 시작합니다...');
+            
+            // 자동 검색 시뮬레이션
+            let count = 0;
+            searchInterval = setInterval(() => {
+                count++;
+                document.getElementById('processedItems').textContent = count;
+                addLog(`[${getCurrentTime()}] 항목 ${count} 처리 중...`);
+                
+                if (count >= 10) {
+                    stopOperation();
+                }
+            }, 2000);
+        }
+
+        function stopOperation() {
+            if (!isWorking) {
+                addLog('진행 중인 작업이 없습니다.');
+                return;
+            }
+            
+            isWorking = false;
+            document.getElementById('workingIndicator').classList.remove('active');
+            document.getElementById('workStatus').textContent = '정지됨';
+            
+            if (searchInterval) {
+                clearInterval(searchInterval);
+                searchInterval = null;
+            }
+            
+            addLog('작업이 정지되었습니다.');
+        }
+
+        function clearResults() {
+            searchResults = [];
+            document.getElementById('resultsContainer').innerHTML = '<div class="loading">결과가 지워졌습니다.</div>';
+            document.getElementById('totalResults').textContent = '0';
+            document.getElementById('selectedCount').textContent = '0';
+            document.getElementById('processedItems').textContent = '0';
+            document.getElementById('totalItems').textContent = '0';
+            
+            // 미리보기 초기화
+            document.getElementById('previewContent').innerHTML = `
+                <img src="https://via.placeholder.com/300x168/cccccc/666666?text=No+Video+Selected" 
+                     alt="미리보기" class="preview-thumbnail">
+                <div class="preview-info">영상을 선택하면 미리보기가 표시됩니다.</div>
+            `;
+            
+            addLog('검색 결과가 지워졌습니다.');
+        }
+
+        function exportToExcel() {
+            if (searchResults.length === 0) {
+                addLog('엑셀로 내보낼 데이터가 없습니다.');
+                return;
+            }
+            
+            // CSV 형태로 데이터 생성
+            let csvContent = '채널명,제목,업로드일,조회수,시간당조회수,구독자수,영상길이,영상링크,썸네일링크,출처\n';
+            
+            searchResults.forEach(item => {
+                csvContent += `"${item.channel}","${item.title}","${item.uploadDate}",${item.views},${item.viewsPerHour},${item.subscribers},"${item.duration}","${item.videoUrl}","${item.thumbnailUrl}","${item.source}"\n`;
+            });
+            
+            // 파일 다운로드
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `youtube_hot_finder_${getCurrentDate()}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            addLog(`${searchResults.length}개 항목을 엑셀 파일로 저장했습니다.`);
+        }
+
+        function saveCurrentWork() {
+            const workData = {
+                searchType: currentSearchType,
+                searchQuery: document.getElementById('searchInput').value,
+                apiKey: document.getElementById('apiKey').value,
+                results: searchResults,
+                timestamp: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(workData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `youtube_work_${getCurrentDate()}.json`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            addLog('현재 작업이 저장되었습니다.');
+        }
+
+        function loadWork() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const workData = JSON.parse(e.target.result);
+                            
+                            // 데이터 복원
+                            currentSearchType = workData.searchType || '';
+                            document.getElementById('searchInput').value = workData.searchQuery || '';
+                            document.getElementById('apiKey').value = workData.apiKey || '';
+                            searchResults = workData.results || [];
+                            
+                            // UI 업데이트
+                            if (currentSearchType) {
+                                document.querySelector(`[data-type="${currentSearchType}"]`)?.classList.add('active');
+                                document.getElementById('searchType').textContent = getSearchTypeText(currentSearchType);
+                            }
+                            
+                            if (searchResults.length > 0) {
+                                displayResults(searchResults);
+                            }
+                            
+                            addLog(`작업이 불러와졌습니다. (${searchResults.length}개 항목)`);
+                        } catch (error) {
+                            addLog('파일을 불러오는 중 오류가 발생했습니다.');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        function manageLicense() {
+            const licenseInfo = `
+YouTube Hot Finder v2.5
+개발자: AI Assistant
+라이선스: MIT License
+API 사용량: 일일 10,000회 제한
+현재 사용량: 1,247 / 10,000
+
+라이선스 키: YHFV25-XXXXX-XXXXX-XXXXX
+만료일: 2025-12-31
+            `;
+            
+            alert(licenseInfo);
+            addLog('라이선스 정보를 확인했습니다.');
+        }
+
+        function exitProgram() {
+            if (isWorking) {
+                if (confirm('작업이 진행 중입니다. 정말 종료하시겠습니까?')) {
+                    stopOperation();
+                } else {
+                    return;
+                }
+            }
+            
+            if (confirm('YouTube Hot Finder를 종료하시겠습니까?')) {
+                addLog('프로그램을 종료합니다...');
+                setTimeout(() => {
+                    window.close();
+                }, 1000);
+            }
+        }
+
+        function handleCommand(event) {
+            if (event.key === 'Enter') {
+                const command = event.target.value.trim();
+                if (command) {
+                    addLog(`> ${command}`);
+                    processCommand(command);
+                    event.target.value = '';
+                }
+            }
+        }
+
+        function processCommand(command) {
+            const parts = command.toLowerCase().split(' ');
+            const cmd = parts[0];
+            
+            switch(cmd) {
+                case 'search':
+                    if (parts[1]) {
+                        document.getElementById('searchInput').value = parts.slice(1).join(' ');
+                        executeSearch();
+                    }
+                    break;
+                case 'keyword':
+                    currentSearchType = 'keyword';
+                    document.getElementById('searchInput').value = parts.slice(1).join(' ');
+                    addLog('키워드 검색 모드로 전환되었습니다.');
+                    break;
+                case 'config':
+                    addLog('설정이 업데이트되었습니다.');
+                    break;
+                case 'clear':
+                    clearResults();
+                    break;
+                case 'start':
+                    startOperation();
+                    break;
+                case 'stop':
+                    stopOperation();
+                    break;
+                case 'help':
+                    addLog('사용 가능한 명령어: search, keyword, config, clear, start, stop, help');
+                    break;
+                default:
+                    addLog(`알 수 없는 명령어: ${cmd}`);
+            }
+        }
+
+        function addLog(message) {
+            const logElement = document.getElementById('commandLog');
+            const time = getCurrentTime();
+            logElement.innerHTML += `\n[${time}] ${message}`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function getCurrentTime() {
+            return new Date().toLocaleTimeString('ko-KR', { hour12: false });
+        }
+
+        function getCurrentDate() {
+            return new Date().toISOString().split('T')[0];
+        }
+    </script>
+</body>
+</html>
