@@ -509,7 +509,7 @@
             
             <div class="api-section">
                 <div style="position: relative;">
-                    <textarea class="api-input" placeholder="YouTube Data API v3 Key&#10;AIzaSyChVn1T7F0qyGR3Tk7aeHVrxB1_czmNvM&#10;&#10;여기에 API 키를 입력하세요" id="apiKey" oninput="checkApiKeyStatus()"></textarea>
+                    <input type="password" class="api-input" placeholder="YouTube Data API v3 Key 입력" id="apiKey" oninput="checkApiKeyStatus()" autocomplete="off" style="height: 40px; font-family: monospace;">
                     <div id="apiKeyStatus" style="position: absolute; top: 5px; right: 5px; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">
                         🔴 키 없음
                     </div>
