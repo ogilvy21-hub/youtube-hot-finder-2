@@ -508,7 +508,16 @@
             </div>
             
             <div class="api-section">
-                <textarea class="api-input" placeholder="YouTube Data API v3 Key&#10;AIzaSyChVn1T7F0qyGR3Tk7aeHVrxB1_czmNvM&#10;&#10;여기에 API 키를 입력하세요" id="apiKey"></textarea>
+                <div style="position: relative;">
+                    <textarea class="api-input" placeholder="YouTube Data API v3 Key&#10;AIzaSyChVn1T7F0qyGR3Tk7aeHVrxB1_czmNvM&#10;&#10;여기에 API 키를 입력하세요" id="apiKey" oninput="checkApiKeyStatus()"></textarea>
+                    <div id="apiKeyStatus" style="position: absolute; top: 5px; right: 5px; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">
+                        🔴 키 없음
+                    </div>
+                    <div style="margin-top: 10px; display: flex; gap: 5px;">
+                        <button onclick="testApiKey()" style="padding: 6px 12px; background: #2196F3; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">🔍 API 키 테스트</button>
+                        <button onclick="clearApiKey()" style="padding: 6px 12px; background: #f44336; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">🗑️ 키 지우기</button>
+                    </div>
+                </div>
                 <div class="stats-section">
                     <div>
                         <span class="working-indicator" id="workingIndicator"></span>
@@ -635,6 +644,9 @@
         let searchInterval = null;
         let analysisModal = null;
         let smartSearchModal = null;
+        let dailyApiUsage = 0;
+        const MAX_DAILY_QUOTA = 10000;
+        
         let searchSettings = {
             maxResults: 25,
             sortBy: 'relevance',
@@ -679,141 +691,7 @@
                 videoUrl: 'https://youtube.com/watch?v=example2',
                 thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjNEVDREM0Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iOTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE2Ij7qsIDsoLHqsJDrk7E8L3RleHQ+Cjwvc3ZnPgo=',
                 source: 'Dummy'
-            },
-            {
-                channel: '노후준비TV',
-                title: '시댁스트레스 벗어나 바닷가로 이주한 할머니',
-                uploadDate: '2024-01-13',
-                views: 2100000,
-                viewsPerHour: 1800,
-                subscribers: 750000,
-                duration: '8:45',
-                videoUrl: 'https://youtube.com/watch?v=example3',
-                thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjNDVCN0QxIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iOTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE2Ij64hOuwqOuPhOumvTwvdGV4dD4KPC9zdmc+Cg==',
-                source: 'Dummy'
-            },
-            {
-                channel: '인생2막',
-                title: '70대 늦은독립 자식배신 극복기',
-                uploadDate: '2024-01-12',
-                views: 850000,
-                viewsPerHour: 920,
-                subscribers: 500000,
-                duration: '25:15',
-                videoUrl: 'https://youtube.com/watch?v=example4',
-                thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjRjM5QzEyIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iOTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE2Ij7snbjsg53sl63soIQ8L3RleHQ+Cjwvc3ZnPgo=',
-                source: 'Dummy'
-            },
-            {
-                channel: '시니어갈등상담소',
-                title: '며느리 가정부취급 당한 시어머니의 용기있는 결단',
-                uploadDate: '2024-01-11',
-                views: 620000,
-                viewsPerHour: 780,
-                subscribers: 180000,
-                duration: '12:30',
-                videoUrl: 'https://youtube.com/watch?v=example5',
-                thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjRTc0QzNDIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iOTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE2Ij7si5zslrTrqLjri5E8L3RleHQ+Cjwvc3ZnPgo=',
-                source: 'Dummy'
-            },
-            {
-                channel: '노인의용기',
-                title: '허리수술도 혼자 받으며 견딘 74세 새출발',
-                uploadDate: '2024-01-10',
-                views: 3200000,
-                viewsPerHour: 2500,
-                subscribers: 1200000,
-                duration: '18:45',
-                videoUrl: 'https://youtube.com/watch?v=example6',
-                thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjOUI1OUI2Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iOTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE2Ij746rOo7J247Jqp6riwPC90ZXh0Pgo8L3N2Zz4K',
-                source: 'Dummy'
-            },
-            {
-                channel: '가족관계연구소',
-                title: '자식갈등으로 집팔고 울진이주한 할머니 근황',
-                uploadDate: '2024-01-09',
-                views: 1800000,
-                viewsPerHour: 1400,
-                subscribers: 650000,
-                duration: '6:20',
-                videoUrl: 'https://youtube.com/watch?v=example7',
-                thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjMkVDQzcxIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iOTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE2Ij7smrjsp4Tsnbzso7w8L3RleHQ+Cjwvc3ZnPgo=',
-                source: 'Dummy'
-            },
-            {
-                channel: '노후사연',
-                title: '가족여행 제외당한 시어머니 30년희생 이야기',
-                uploadDate: '2024-01-08',
-                views: 450000,
-                viewsPerHour: 680,
-                subscribers: 320000,
-                duration: '14:30',
-                videoUrl: 'https://youtube.com/watch?v=example8',
-                thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjMzQ5OERCIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iOTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE2Ij7qsIDsobHrsLDsi6A8L3RleHQ+Cjwvc3ZnPgo=',
-                source: 'Dummy'
-            },
-            {
-                channel: '시댁갈등해결사',
-                title: '며느리텃세 견디다 못해 독립한 현명한 시어머니',
-                uploadDate: '2024-01-07',
-                views: 920000,
-                viewsPerHour: 1100,
-                subscribers: 420000,
-                duration: '11:45',
-                videoUrl: 'https://youtube.com/watch?v=example9',
-                thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjRTY3RTIyIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iOTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE2Ij7si5zrjYXqsJHrlLE8L3RleHQ+Cjwvc3ZnPgo=',
-                source: 'Dummy'
-            },
-            {
-                channel: '지혜로운노인',
-                title: '늦깎이독립 성공한 할머니의 인생조언',
-                uploadDate: '2024-01-06',
-                views: 1350000,
-                viewsPerHour: 1520,
-                subscribers: 580000,
-                duration: '16:20',
-                videoUrl: 'https://youtube.com/watch?v=example10',
-                thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjOEU0NEFEIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iOTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE2Ij7snbjsg53sobDslrY8L3RleHQ+Cjwvc3ZnPgo=',
-                source: 'Dummy'
-            },
-            // 추가 더미 데이터 (30개 더 추가)
-            {
-                channel: '시니어방송',
-                title: '70대 다시 시작하는 새로운 인생 도전기',
-                uploadDate: '2024-01-05',
-                views: 780000,
-                viewsPerHour: 1250,
-                subscribers: 340000,
-                duration: '13:45',
-                videoUrl: 'https://youtube.com/watch?v=example11',
-                thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjNjBCRjY3Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iOTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE2Ij7rpLPlpJFcdOq1rDwvdGV4dD4KPC9zdmc+',
-                source: 'Dummy'
-            },
-            {
-                channel: '중년시니어TV',
-                title: '시니어창업 성공비결 공개 - 60세부터 새출발',
-                uploadDate: '2024-01-04',
-                views: 1250000,
-                viewsPerHour: 1680,
-                subscribers: 720000,
-                duration: '21:30',
-                videoUrl: 'https://youtube.com/watch?v=example12',
-                thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjRkY5ODAwIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iOTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE2Ij7ssq3rs6bsl5DovpnCpDwvdGV4dD4KPC9zdmc+',
-                source: 'Dummy'
-            },
-            {
-                channel: '실버에이지',
-                title: '60대 주식투자로 노후준비 완성하기',
-                uploadDate: '2024-01-03',
-                views: 2800000,
-                viewsPerHour: 3200,
-                subscribers: 950000,
-                duration: '28:15',
-                videoUrl: 'https://youtube.com/watch?v=example13',
-                thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjMzM1N0Q4Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iOTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE2Ij7si6TrsoTsl5Zsn4JceDwvdGV4dD4KPC9zdmc+',
-                source: 'Dummy'
             }
-            // ... 더 많은 데이터를 추가하여 총 50개 항목 생성
         ];
 
         // 더미 데이터를 50개까지 자동 생성
@@ -846,6 +724,162 @@
         };
         
         generateMoreDummyData();
+
+        // YouTube API 관련 함수들
+        async function searchWithYouTubeAPI(searchQuery, apiKey) {
+            addLog('🔗 실제 YouTube API로 검색을 시도합니다...');
+            
+            try {
+                // 1단계: 검색 API 호출
+                const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchQuery)}&key=${apiKey}&maxResults=${searchSettings.maxResults}&type=video&order=${searchSettings.sortBy}&regionCode=KR`;
+                
+                addLog(`📡 API 요청: ${searchQuery}`);
+                
+                const searchResponse = await fetch(searchUrl);
+                
+                if (!searchResponse.ok) {
+                    throw new Error(`검색 API 오류: ${searchResponse.status} - ${searchResponse.statusText}`);
+                }
+                
+                const searchData = await searchResponse.json();
+                addLog(`✅ 검색 완료: ${searchData.items?.length || 0}개 결과`);
+                
+                if (!searchData.items || searchData.items.length === 0) {
+                    addLog('❌ 검색 결과가 없습니다.');
+                    searchResults = [];
+                    displayResults(searchResults);
+                    document.getElementById('searchStatus').textContent = 'API 검색완료 (0개)';
+                    return;
+                }
+                
+                // 2단계: 비디오 상세 정보 가져오기
+                const videoIds = searchData.items.map(item => item.id.videoId).join(',');
+                const videosUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${videoIds}&key=${apiKey}`;
+                
+                addLog('📊 영상 상세 정보를 가져옵니다...');
+                
+                const videosResponse = await fetch(videosUrl);
+                
+                if (!videosResponse.ok) {
+                    throw new Error(`비디오 API 오류: ${videosResponse.status} - ${videosResponse.statusText}`);
+                }
+                
+                const videosData = await videosResponse.json();
+                
+                // 3단계: 채널 정보 가져오기
+                const channelIds = [...new Set(videosData.items.map(item => item.snippet.channelId))].join(',');
+                const channelsUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelIds}&key=${apiKey}`;
+                
+                addLog('🎭 채널 정보를 가져옵니다...');
+                
+                const channelsResponse = await fetch(channelsUrl);
+                const channelsData = channelsResponse.ok ? await channelsResponse.json() : { items: [] };
+                
+                // 4단계: 데이터 병합 및 처리
+                const realResults = videosData.items.map(video => {
+                    const searchItem = searchData.items.find(item => item.id.videoId === video.id);
+                    const channelInfo = channelsData.items?.find(channel => channel.id === video.snippet.channelId);
+                    
+                    // 조회수 계산
+                    const views = parseInt(video.statistics.viewCount || 0);
+                    const publishedAt = new Date(video.snippet.publishedAt);
+                    const hoursAgo = Math.max(1, (Date.now() - publishedAt.getTime()) / (1000 * 60 * 60));
+                    const viewsPerHour = Math.round(views / hoursAgo);
+                    
+                    // 영상 길이 변환 (PT4M13S -> 4:13)
+                    const duration = convertDuration(video.contentDetails.duration);
+                    
+                    return {
+                        channel: video.snippet.channelTitle,
+                        title: video.snippet.title,
+                        uploadDate: video.snippet.publishedAt.split('T')[0],
+                        views: views,
+                        viewsPerHour: viewsPerHour,
+                        subscribers: parseInt(channelInfo?.statistics.subscriberCount || 0),
+                        duration: duration,
+                        videoUrl: `https://youtube.com/watch?v=${video.id}`,
+                        thumbnailUrl: video.snippet.thumbnails.medium?.url || video.snippet.thumbnails.default?.url,
+                        source: 'YouTube API'
+                    };
+                });
+                
+                // 필터 및 정렬 적용
+                let filteredResults = applySearchFilters(realResults);
+                filteredResults = applySorting(filteredResults);
+                
+                searchResults = filteredResults;
+                displayResults(searchResults);
+                document.getElementById('searchStatus').textContent = `API 검색완료 (${searchResults.length}개)`;
+                document.getElementById('totalResults').textContent = searchResults.length;
+                
+                addLog(`🎉 실제 YouTube API 검색 완료: ${searchResults.length}개 결과`);
+                addLog(`📈 API 할당량 사용: 약 ${searchResults.length * 3}개 단위 (검색+비디오+채널)`);
+                
+                // API 할당량 업데이트
+                updateApiQuota(searchResults.length * 3);
+                
+            } catch (error) {
+                addLog(`❌ YouTube API 오류: ${error.message}`);
+                
+                if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+                    addLog('🔒 CORS 오류 감지 - 서버 프록시가 필요할 수 있습니다.');
+                    addLog('🔄 더미 데이터로 대체하여 기능을 시연합니다.');
+                } else if (error.message.includes('403')) {
+                    addLog('🔑 API 키 문제: 키가 유효하지 않거나 할당량을 초과했습니다.');
+                } else if (error.message.includes('400')) {
+                    addLog('📝 요청 형식 오류: 검색 매개변수를 확인해주세요.');
+                }
+                
+                addLog('📊 더미 데이터로 기능을 시연합니다.');
+                searchWithDummyData(searchQuery);
+            }
+        }
+
+        // PT4M13S -> 4:13 변환 함수
+        function convertDuration(duration) {
+            if (!duration) return '0:00';
+            
+            const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+            if (!match) return '0:00';
+            
+            const hours = parseInt(match[1] || 0);
+            const minutes = parseInt(match[2] || 0);
+            const seconds = parseInt(match[3] || 0);
+            
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // API 할당량 추적
+        function checkApiQuota() {
+            const today = new Date().toDateString();
+            const lastUsageDate = localStorage.getItem('lastApiUsageDate');
+            
+            if (lastUsageDate !== today) {
+                dailyApiUsage = 0;
+                localStorage.setItem('lastApiUsageDate', today);
+                localStorage.setItem('dailyApiUsage', '0');
+            } else {
+                dailyApiUsage = parseInt(localStorage.getItem('dailyApiUsage') || '0');
+            }
+            
+            return dailyApiUsage;
+        }
+
+        function updateApiQuota(usedQuota) {
+            dailyApiUsage += usedQuota;
+            localStorage.setItem('dailyApiUsage', dailyApiUsage.toString());
+            
+            const remainingQuota = MAX_DAILY_QUOTA - dailyApiUsage;
+            addLog(`📊 API 할당량: ${dailyApiUsage}/${MAX_DAILY_QUOTA} 사용 (${remainingQuota} 남음)`);
+            
+            if (remainingQuota < 300) {
+                addLog('⚠️ API 할당량이 부족합니다. 내일 다시 시도해주세요.');
+            }
+        }
 
         // 검색 버튼 이벤트
         document.querySelectorAll('.search-btn').forEach(btn => {
@@ -1012,17 +1046,17 @@
                     </thead>
                     <tbody>
                         ${results.map((item, index) => `
-                            <tr onclick="selectRow(${index})" data-index="${index}">
-                                <td><a href="#" class="channel-link">${item.channel}</a></td>
-                                <td>${item.title}</td>
+                            <tr onclick="selectRow(${index})" data-index="${index}" style="cursor: pointer;">
+                                <td><span class="channel-link">${item.channel}</span></td>
+                                <td title="${escapeHtml(item.title)}">${item.title.length > 50 ? item.title.substring(0, 50) + '...' : item.title}</td>
                                 <td>${item.uploadDate}</td>
                                 <td>${item.views.toLocaleString()}</td>
                                 <td>${item.viewsPerHour.toLocaleString()}</td>
                                 <td>${item.subscribers.toLocaleString()}</td>
                                 <td>${item.duration}</td>
-                                <td><a href="${item.videoUrl}" target="_blank" class="video-link">링크</a></td>
-                                <td><a href="${item.thumbnailUrl}" target="_blank" class="video-link">썸네일</a></td>
-                                <td>${item.source}</td>
+                                <td><button onclick="openVideoLink('${item.videoUrl}', event)" class="video-link" style="background: #FF5722; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 11px;">🎬 영상보기</button></td>
+                                <td><button onclick="openThumbnailLink('${item.thumbnailUrl}', event)" class="video-link" style="background: #2196F3; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 11px;">🖼️ 썸네일</button></td>
+                                <td><span style="padding: 2px 6px; background: ${item.source === 'YouTube API' ? '#4CAF50' : '#FF9800'}; color: white; border-radius: 3px; font-size: 10px;">${item.source}</span></td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -1030,11 +1064,34 @@
             `;
             
             container.innerHTML = table;
+            addLog(`📋 검색 결과 테이블이 생성되었습니다. (${results.length}개 항목)`);
+        }
+
+        function openVideoLink(url, event) {
+            event.stopPropagation(); // 행 선택 이벤트 방지
+            if (url.includes('example')) {
+                alert('🎬 데모 영상 링크입니다.\n실제 YouTube API를 사용하면 진짜 영상 링크가 제공됩니다.');
+                addLog('🎬 데모 영상 링크 클릭됨');
+            } else {
+                window.open(url, '_blank');
+                addLog('🎬 영상 링크 열림: ' + url);
+            }
+        }
+
+        function openThumbnailLink(url, event) {
+            event.stopPropagation(); // 행 선택 이벤트 방지
+            if (url.startsWith('data:image/svg+xml')) {
+                addLog('🖼️ SVG 썸네일입니다 (데모용)');
+                alert('🖼️ 데모용 SVG 썸네일입니다.\n실제 YouTube API를 사용하면 진짜 썸네일 이미지가 제공됩니다.');
+            } else {
+                window.open(url, '_blank');
+                addLog('🖼️ 썸네일 링크 열림: ' + url);
+            }
         }
 
         function selectRow(index) {
             try {
-                console.log('행 선택:', index, '전체 결과 수:', searchResults.length);
+                console.log('행 선택 시도:', index, '전체 결과 수:', searchResults.length);
                 
                 if (!searchResults || searchResults.length === 0) {
                     console.error('검색 결과가 없습니다');
@@ -1053,14 +1110,17 @@
                     const prevSelected = document.querySelector(`tr[data-index="${selectedRow}"]`);
                     if (prevSelected) {
                         prevSelected.classList.remove('selected');
+                        prevSelected.style.backgroundColor = '';
                     }
                 }
                 
-                // 새로운 선택
+                // 새로운 선택 적용
                 selectedRow = index;
                 const newSelected = document.querySelector(`tr[data-index="${index}"]`);
                 if (newSelected) {
                     newSelected.classList.add('selected');
+                    newSelected.style.backgroundColor = '#e3f2fd';
+                    console.log('행 선택 성공');
                 } else {
                     console.error('선택할 행을 찾을 수 없습니다:', index);
                 }
@@ -1071,7 +1131,7 @@
                 const selectedVideo = searchResults[index];
                 if (selectedVideo) {
                     updatePreview(selectedVideo);
-                    addLog(`영상 선택됨: ${selectedVideo.title}`);
+                    addLog(`✅ 영상 선택됨: ${selectedVideo.title.substring(0, 30)}...`);
                 } else {
                     console.error('선택된 영상 데이터를 찾을 수 없습니다');
                     addLog('❌ 선택된 영상 데이터를 찾을 수 없습니다.');
@@ -1090,7 +1150,7 @@
                 return;
             }
             
-            console.log('미리보기 업데이트:', video.title);
+            console.log('미리보기 업데이트 시작:', video.title);
             
             const defaultImageUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjNDU4NEZGIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iNzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE0Ij7rupnquIw8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iOTUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE0Ij7rpbzrlKk8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMTE1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSIxNCI+7ZWZ7JqU7JW8IOyEoO2DnTwvdGV4dD4KPC9zdmc+Cg==';
             
@@ -1101,18 +1161,34 @@
                      alt="${escapeHtml(video.title)}" 
                      class="preview-thumbnail"
                      onerror="this.src='${defaultImageUrl}'; console.log('썸네일 로딩 실패, 기본 이미지로 대체');"
-                     onload="console.log('썸네일 로딩 성공');">
-                <div class="preview-info">
-                    <strong>${escapeHtml(video.title)}</strong><br>
-                    채널: ${escapeHtml(video.channel)}<br>
-                    조회수: ${video.views.toLocaleString()}<br>
-                    업로드: ${video.uploadDate}<br>
-                    길이: ${video.duration}<br>
-                    시간당 조회수: ${video.viewsPerHour.toLocaleString()}
+                     onload="console.log('썸네일 로딩 성공');"
+                     style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                <div class="preview-info" style="text-align: left; line-height: 1.6;">
+                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #333;">
+                        ${escapeHtml(video.title)}
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; color: #666;">
+                        <div><strong>📺 채널:</strong> ${escapeHtml(video.channel)}</div>
+                        <div><strong>👁️ 조회수:</strong> ${video.views.toLocaleString()}</div>
+                        <div><strong>📅 업로드:</strong> ${video.uploadDate}</div>
+                        <div><strong>⏱️ 길이:</strong> ${video.duration}</div>
+                        <div><strong>⚡ 시간당 조회:</strong> ${video.viewsPerHour.toLocaleString()}</div>
+                        <div><strong>👥 구독자:</strong> ${video.subscribers.toLocaleString()}</div>
+                    </div>
+                    <div style="margin-top: 15px; display: flex; gap: 8px;">
+                        <button onclick="openVideoLink('${video.videoUrl}', event)" 
+                                style="padding: 8px 12px; background: #FF5722; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                            🎬 영상 보기
+                        </button>
+                        <button onclick="openThumbnailLink('${video.thumbnailUrl}', event)" 
+                                style="padding: 8px 12px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                            🖼️ 썸네일
+                        </button>
+                    </div>
                 </div>
             `;
             
-            addLog(`미리보기 업데이트 완료: ${video.title}`);
+            addLog(`🎬 미리보기 업데이트 완료: ${video.title.substring(0, 30)}...`);
         }
 
         function escapeHtml(text) {
@@ -1128,6 +1204,55 @@
                 img.src = defaultImage;
                 addLog('❌ 이미지 로딩 실패로 기본 이미지로 대체했습니다.');
             }
+        }
+
+        // API 키 상태 확인 함수
+        function checkApiKeyStatus() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const statusElement = document.getElementById('apiKeyStatus');
+            
+            if (!apiKey) {
+                statusElement.textContent = '🔴 키 없음';
+                statusElement.style.background = '#ffebee';
+                statusElement.style.color = '#c62828';
+                addLog('📝 API 키가 입력되지 않았습니다.');
+            } else if (apiKey.startsWith('AIza') && apiKey.length > 30) {
+                statusElement.textContent = '🟢 유효한 형식';
+                statusElement.style.background = '#e8f5e8';
+                statusElement.style.color = '#2e7d32';
+                addLog('✅ 유효한 API 키 형식이 입력되었습니다.');
+            } else {
+                statusElement.textContent = '🟡 형식 확인 필요';
+                statusElement.style.background = '#fff3e0';
+                statusElement.style.color = '#ef6c00';
+                addLog('⚠️ API 키 형식을 확인해주세요. (AIza로 시작해야 함)');
+            }
+        }
+
+        function testApiKey() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            if (!apiKey) {
+                alert('❌ API 키를 먼저 입력해주세요.');
+                addLog('❌ API 키 테스트 실패: 키가 입력되지 않음');
+                return;
+            }
+            
+            if (apiKey.startsWith('AIza') && apiKey.length > 30) {
+                addLog('🔍 API 키 테스트 중...');
+                setTimeout(() => {
+                    alert('✅ API 키 형식이 올바릅니다!\n실제 YouTube API 연동은 서버 환경에서 테스트 가능합니다.');
+                    addLog('✅ API 키 테스트 완료 - 형식 검증 성공');
+                }, 1000);
+            } else {
+                alert('❌ 올바르지 않은 API 키 형식입니다.\nYouTube Data API v3 키는 "AIza"로 시작해야 합니다.');
+                addLog('❌ API 키 테스트 실패: 잘못된 형식');
+            }
+        }
+
+        function clearApiKey() {
+            document.getElementById('apiKey').value = '';
+            checkApiKeyStatus();
+            addLog('🗑️ API 키가 삭제되었습니다.');
         }
 
         // 설정 관련 함수들
@@ -1383,6 +1508,24 @@
             addLog('⏹️ 작업을 중지했습니다.');
         }
 
+        function clearResults() {
+            searchResults = [];
+            document.getElementById('resultsContainer').innerHTML = '<div class="loading">결과가 지워졌습니다.</div>';
+            document.getElementById('totalResults').textContent = '0';
+            document.getElementById('selectedCount').textContent = '0';
+            
+            const defaultImageUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE2OCIgdmlld0JveD0iMCAwIDMwMCAxNjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTY4IiBmaWxsPSIjQ0NDQ0NDIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iNzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM2NjY2NjYiIGZvbnQtc2l6ZT0iMTYiPu2ZlOyDgSDrjIDquLDqs6DsoLA8L3RleHQ+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNjY2NjY2IiBmb250LXNpemU9IjEyIj7shKDtg50g7ZWE7JqU7JeQ7ISc64usPC90ZXh0Pgo8L3N2Zz4K';
+            
+            document.getElementById('previewContent').innerHTML = `
+                <img src="${defaultImageUrl}" 
+                     alt="미리보기" class="preview-thumbnail" 
+                     onerror="handleImageError(this)">
+                <div class="preview-info">영상을 선택하면 미리보기가 표시됩니다.</div>
+            `;
+            
+            addLog('검색 결과가 지워졌습니다.');
+        }
+
         function exportToExcel() {
             if (!searchResults || searchResults.length === 0) {
                 alert('❌ 내보낼 검색 결과가 없습니다.\n먼저 검색을 실행해주세요.');
@@ -1570,7 +1713,6 @@
                         <h4>📂 현재 분류 태그</h4>
                         <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0;">
                             <span style="padding: 6px 12px; background: #e3f2fd; border-radius: 20px; font-size: 12px;">시니어</span>
-                            <span style="padding: 6px 12px; background: #e8f5e8; border-radius: 20px; font-size: 12px;">갈등</span>
                             <span style="padding: 6px 12px; background: #fff3e0; border-radius: 20px; font-size: 12px;">독립</span>
                             <span style="padding: 6px 12px; background: #fce4ec; border-radius: 20px; font-size: 12px;">가족</span>
                             <span style="padding: 6px 12px; background: #f3e5f5; border-radius: 20px; font-size: 12px;">노인</span>
@@ -1733,13 +1875,6 @@
             executeSearch();
         }
 
-        // YouTube API 관련 (간소화 버전)
-        async function searchWithYouTubeAPI(searchQuery, apiKey) {
-            addLog('🔗 YouTube API 연동을 시도합니다...');
-            addLog('⚠️ 현재는 개발 버전으로 더미 데이터를 사용합니다.');
-            searchWithDummyData(searchQuery);
-        }
-
         // 페이지 로드시 초기화
         document.addEventListener('DOMContentLoaded', function() {
             try {
@@ -1751,10 +1886,14 @@
                     searchInput.placeholder = `키워드를 입력하세요 (예: ${exampleKeywords})`;
                 }
                 
+                // API 할당량 초기화
+                checkApiQuota();
+                
                 addLog('YouTube Hot Finder v2.5가 성공적으로 로드되었습니다.');
-                addLog('💡 API 키가 없어도 더미 데이터로 테스트할 수 있습니다.');
-                addLog('💡 "시니어", "노인", "갈등", "독립" 등의 키워드로 검색해보세요.');
-                addLog('💡 설정 버튼을 클릭하면 자동으로 설정창이 열립니다.');
+                addLog('🔑 실제 YouTube API 연동이 활성화되었습니다!');
+                addLog('📊 일일 API 할당량: 10,000 단위 (검색 1회 = 약 300 단위)');
+                addLog('💡 유효한 API 키를 입력하면 실제 YouTube 데이터를 검색할 수 있습니다.');
+                addLog('⚠️ API 키가 없거나 CORS 오류 시 더미 데이터로 시연합니다.');
                 
                 console.log('더미 데이터 개수:', dummyData.length);
                 console.log('더미 데이터 첫 번째 항목:', dummyData[0]);
@@ -1764,7 +1903,7 @@
                     addLog(`❌ 오류가 발생했습니다: ${e.error?.message || e.message}`);
                 });
                 
-                addLog('시스템 초기화 완료 - 모든 기능이 활성화되었습니다.');
+                addLog('시스템 초기화 완료 - 실제 YouTube API 검색이 준비되었습니다.');
                 
             } catch (error) {
                 console.error('초기화 중 오류:', error);
